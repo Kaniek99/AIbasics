@@ -7,15 +7,15 @@ import (
 )
 
 type Genotype interface {
+	CalculateFitness([]int, []int, int) int // preferably, the argument should be a slice of variables of any type??
+	GetGenesSequence() []int                // same there but I'm not sure if returning a slice of anys is the best soulution
 	Mutate() Genotype
-	Fitness([]any) int
 	// Crossover(Genotype) Genotype
 }
 
-// Each genotype is a binary sequence
 type BinarySequence struct {
-	Sequence []int
-	Length   int
+	GenesSequence []int
+	Length        int
 }
 
 func GenerateBinarySequence(len int) (BinarySequence, error) {
@@ -27,26 +27,40 @@ func GenerateBinarySequence(len int) (BinarySequence, error) {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	for i := 0; i < len; i++ {
-		// bs.Sequence[i] = rand.Intn(2)
-		bs.Sequence[i] = r.Intn(2)
+		bs.GenesSequence[i] = r.Intn(2)
 	}
 
 	return bs, nil
 }
 
-func (bs BinarySequence) Mutate() BinarySequence {
-	// rand.Seed(time.Now().UnixNano())
-	index := rand.Intn(bs.Length)
-	bs.Sequence[index] = 1 - bs.Sequence[index]
-	return bs
+func (bs BinarySequence) CalculateFitness(values, weights []int, maxWeight int) int {
+	totalValue := 0
+	totalWeight := 0
+
+	for i, selected := range bs.GenesSequence {
+		if selected == 1 {
+			totalValue += values[i]
+			totalWeight += weights[i]
+		}
+	}
+
+	if totalWeight > maxWeight {
+		return maxWeight - totalWeight
+	}
+
+	return totalValue
 }
 
-func (bs BinarySequence) Fitness(values []int) int {
-	fitnessCoefficient := 0
-	for i := 0; i < bs.Length; i++ {
-		fitnessCoefficient += bs.Sequence[i] * values[i]
-	}
-	return fitnessCoefficient
+func (bs BinarySequence) GetGenesSequence() []int {
+	return bs.GenesSequence
+}
+
+func (bs BinarySequence) Mutate() Genotype {
+	newSequence := make([]int, bs.Length)
+	copy(newSequence, bs.GenesSequence)
+	index := rand.Intn(bs.Length)
+	newSequence[index] = 1 - newSequence[index]
+	return BinarySequence{newSequence, bs.Length}
 }
 
 // func (bs *BinarySequence) Crossover(other *BinarySequence) {
