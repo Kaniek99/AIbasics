@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 
-	"github.com/Kaniek99/AIbasics/utils"
+	"github.com/Kaniek99/AIbasics/src/genotype"
 )
 
 type Item struct {
@@ -24,10 +24,10 @@ func NewRandomItem(minWeight, maxWeight, minValue, maxValue int) *Item {
 
 type Knapsack struct {
 	MaxWeight int
-	Solution  utils.Genotype
+	Solution  genotype.Genotype
 }
 
-func NewKnapsack(maxWeight int, solution utils.Genotype) *Knapsack {
+func NewKnapsack(maxWeight int, solution genotype.Genotype) *Knapsack {
 	return &Knapsack{maxWeight, solution}
 }
 

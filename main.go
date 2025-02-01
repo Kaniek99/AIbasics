@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
+	"github.com/Kaniek99/AIbasics/src/genotype"
 	kp "github.com/Kaniek99/AIbasics/src/knapsack"
-	"github.com/Kaniek99/AIbasics/utils"
 )
 
 const (
@@ -23,7 +23,7 @@ func main() {
 	}
 
 	// Generate a Genotype
-	bs, err := utils.GenerateBinarySequence(numberOfItems)
+	bs, err := genotype.GenerateBinarySequence(numberOfItems)
 	if err != nil {
 		fmt.Println(err)
 		return

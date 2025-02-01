@@ -1,4 +1,4 @@
-package utils
+package genotype
 
 import (
 	"errors"
@@ -69,17 +69,3 @@ func (bs BinarySequence) Mutate() Genotype {
 // 		bs.Sequence[i], other.Sequence[i] = other.Sequence[i], bs.Sequence[i]
 // 	}
 // }
-
-func SumOfTheProductOfTwoSlices(first, second []int) (int, error) {
-	sum := 0
-
-	if len(first) != len(second) {
-		return sum, errors.New("slices should have the same length")
-	}
-
-	for i := 0; i < len(first); i++ {
-		sum += first[i] * second[i]
-	}
-
-	return sum, nil
-}
