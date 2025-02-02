@@ -31,6 +31,26 @@ func NewKnapsack(maxWeight int, solution genotype.Genotype) *Knapsack {
 	return &Knapsack{maxWeight, solution}
 }
 
+func (k Knapsack) CalculateFitness(values, weights []int, maxWeight int) int {
+	totalValue := 0
+	totalWeight := 0
+
+	genesSequence := k.Solution.GetGenesSequence()
+
+	for i, selected := range genesSequence {
+		if selected == 1 {
+			totalValue += values[i]
+			totalWeight += weights[i]
+		}
+	}
+
+	if totalWeight > maxWeight {
+		return maxWeight - totalWeight
+	}
+
+	return totalValue
+}
+
 type KnapsackProblem struct {
 	Items              []*Item
 	Knapsack           *Knapsack
@@ -54,7 +74,7 @@ func CalculateFitness(items []*Item, knapsack *Knapsack) int {
 		values = append(values, item.Value)
 	}
 
-	return knapsack.Solution.CalculateFitness(values, weights, knapsack.MaxWeight)
+	return knapsack.CalculateFitness(values, weights, knapsack.MaxWeight)
 }
 
 func (kp *KnapsackProblem) Solve() {

@@ -7,8 +7,7 @@ import (
 )
 
 type Genotype interface {
-	CalculateFitness([]int, []int, int) int // preferably, the argument should be a slice of variables of any type??
-	GetGenesSequence() []int                // same there but I'm not sure if returning a slice of anys is the best soulution
+	GetGenesSequence() []int // same there but I'm not sure if returning a slice of anys is the best soulution
 	Mutate() Genotype
 	// Crossover(Genotype) Genotype
 }
@@ -31,24 +30,6 @@ func GenerateBinarySequence(len int) (BinarySequence, error) {
 	}
 
 	return bs, nil
-}
-
-func (bs BinarySequence) CalculateFitness(values, weights []int, maxWeight int) int {
-	totalValue := 0
-	totalWeight := 0
-
-	for i, selected := range bs.GenesSequence {
-		if selected == 1 {
-			totalValue += values[i]
-			totalWeight += weights[i]
-		}
-	}
-
-	if totalWeight > maxWeight {
-		return maxWeight - totalWeight
-	}
-
-	return totalValue
 }
 
 func (bs BinarySequence) GetGenesSequence() []int {
