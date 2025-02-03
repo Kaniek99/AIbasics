@@ -8,3 +8,5 @@ Go 1.22 or higher
 To build the project run `go run .` in root directory.
 
 ## Knapsack Problem
+
+## Task Allocation Problem

@@ -12,6 +12,7 @@ type Genotype interface {
 	// Crossover(Genotype) Genotype
 }
 
+// is it even needed to have another struct for just int sequence?
 type BinarySequence struct {
 	GenesSequence []int
 	Length        int
@@ -50,3 +51,35 @@ func (bs BinarySequence) Mutate() Genotype {
 // 		bs.Sequence[i], other.Sequence[i] = other.Sequence[i], bs.Sequence[i]
 // 	}
 // }
+
+type IntSequence struct {
+	GenesSequence []int
+	Length        int
+	MaxNumber     int
+}
+
+func GenerateIntSequence(len, maxNum int) (IntSequence, error) {
+	if len <= 0 {
+		return IntSequence{}, errors.New("length should be greater than 0")
+	}
+
+	is := IntSequence{make([]int, len), len, maxNum}
+
+	for i := 0; i < len; i++ {
+		is.GenesSequence[i] = rand.Intn(maxNum)
+	}
+
+	return is, nil
+}
+
+func (is IntSequence) GetGenesSequence() []int {
+	return is.GenesSequence
+}
+
+func (is IntSequence) Mutate() Genotype {
+	newSequence := make([]int, is.Length)
+	copy(newSequence, is.GenesSequence)
+	index := rand.Intn(is.Length)
+	newSequence[index] = (newSequence[index] + index) % is.MaxNumber
+	return IntSequence{newSequence, is.Length, is.MaxNumber}
+}

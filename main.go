@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"math"
+	"math/rand"
 
+	pc "github.com/Kaniek99/AIbasics/src/allocation"
 	"github.com/Kaniek99/AIbasics/src/genotype"
 	kp "github.com/Kaniek99/AIbasics/src/knapsack"
 )
@@ -35,4 +38,24 @@ func main() {
 	knap.Solve()
 	fmt.Println("Solution: ", knap.Knapsack.Solution.GetGenesSequence())
 	fmt.Println("Solution value: ", knap.FitnessCoefficient)
+
+	coreMultipliers := []float32{1, 1.25, 1.5, 1.75}
+	tasksTime := []int{}
+	for i := 0; i < numberOfItems; i++ {
+		tasksTime = append(tasksTime, rand.Intn(itemMaxValue-itemMinValue+1)+itemMinValue)
+	}
+
+	fmt.Println(tasksTime)
+	taskAllocation, err := genotype.GenerateIntSequence(len(tasksTime), len(coreMultipliers))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	processor := pc.NewProcessor(coreMultipliers, math.MaxFloat32, tasksTime, &taskAllocation)
+	alloc := pc.NewAllocationProblem(processor)
+	alloc.Solve()
+
+	fmt.Println(alloc.Solution.TaskAllocation.GetGenesSequence())
+	fmt.Println("Time required", alloc.FitnessCoefficient)
 }
