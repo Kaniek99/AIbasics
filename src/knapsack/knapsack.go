@@ -31,10 +31,15 @@ func NewKnapsack(maxWeight int, solution genotype.Genotype) *Knapsack {
 	return &Knapsack{maxWeight, solution}
 }
 
-func (k Knapsack) CalculateFitness(values, weights []int, maxWeight int) int {
-	totalValue := 0
-	totalWeight := 0
+func (k Knapsack) CalculateFitness(items []*Item) int {
+	weights := []int{}
+	values := []int{}
+	for _, item := range items {
+		weights = append(weights, item.Weight)
+		values = append(values, item.Value)
+	}
 
+	totalValue, totalWeight := 0, 0
 	genesSequence := k.Solution.GetGenesSequence()
 
 	for i, selected := range genesSequence {
@@ -44,8 +49,8 @@ func (k Knapsack) CalculateFitness(values, weights []int, maxWeight int) int {
 		}
 	}
 
-	if totalWeight > maxWeight {
-		return maxWeight - totalWeight
+	if totalWeight > k.MaxWeight {
+		return k.MaxWeight - totalWeight
 	}
 
 	return totalValue
@@ -59,22 +64,8 @@ type KnapsackProblem struct {
 }
 
 func NewKnapsackProblem(items []*Item, knapsack *Knapsack) *KnapsackProblem {
-	fitnessCoefficient := CalculateFitness(items, knapsack)
+	fitnessCoefficient := knapsack.CalculateFitness(items)
 	return &KnapsackProblem{items, knapsack, fitnessCoefficient, 0}
-}
-
-func CalculateFitness(items []*Item, knapsack *Knapsack) int {
-	weights := []int{}
-	for _, item := range items {
-		weights = append(weights, item.Weight)
-	}
-
-	values := []int{}
-	for _, item := range items {
-		values = append(values, item.Value)
-	}
-
-	return knapsack.CalculateFitness(values, weights, knapsack.MaxWeight)
 }
 
 func (kp *KnapsackProblem) Solve() {
@@ -91,7 +82,7 @@ func (kp *KnapsackProblem) Solve() {
 	for kp.StagnationCounter < 100 {
 		childSolution := kp.Knapsack.Solution.Mutate()
 		child := NewKnapsack(kp.Knapsack.MaxWeight, childSolution)
-		childFitness := CalculateFitness(kp.Items, child)
+		childFitness := child.CalculateFitness(kp.Items)
 		if childFitness > kp.FitnessCoefficient {
 			kp.Knapsack = child
 			kp.FitnessCoefficient = childFitness
