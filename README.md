@@ -10,3 +10,5 @@ To build the project run `go run .` in root directory.
 ## Knapsack Problem
 
 ## Task Allocation Problem
+
+## Travelling Salesman Problem

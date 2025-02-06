@@ -8,6 +8,7 @@ import (
 	pc "github.com/Kaniek99/AIbasics/src/allocation"
 	"github.com/Kaniek99/AIbasics/src/genotype"
 	kp "github.com/Kaniek99/AIbasics/src/knapsack"
+	sal "github.com/Kaniek99/AIbasics/src/salesman"
 )
 
 const (
@@ -58,4 +59,28 @@ func main() {
 
 	fmt.Println(alloc.Solution.TaskAllocation.GetGenesSequence())
 	fmt.Println("Time required", alloc.FitnessCoefficient)
+
+	cd := [][]float64{}
+	for i := 0; i < numberOfItems; i++ {
+		cityDistances := make([]float64, numberOfItems)
+		cd = append(cd, cityDistances)
+	}
+
+	for i := 0; i < numberOfItems; i++ {
+		for j := i + 1; j < numberOfItems; j++ {
+			cd[i][j] = float64(rand.Intn(itemMaxValue-itemMinValue+1) + itemMinValue)
+		}
+		for j := 0; j < numberOfItems; j++ {
+			cd[j][i] = cd[i][j]
+		}
+	}
+	salesmanRoute, err := genotype.GenerateIntSequenceWithUniqueValues(numberOfItems)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	salesman := sal.NewSalesman(cd, salesmanRoute)
+	salesmanProblem := sal.NewSalesmanProblem(salesman)
+	salesmanProblem.Solve()
 }

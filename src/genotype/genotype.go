@@ -9,6 +9,7 @@ import (
 type Genotype interface {
 	GetGenesSequence() []int // same there but I'm not sure if returning a slice of anys is the best soulution
 	Mutate() Genotype
+	Swap() Genotype
 	// Crossover(Genotype) Genotype
 }
 
@@ -45,6 +46,14 @@ func (bs BinarySequence) Mutate() Genotype {
 	return BinarySequence{newSequence, bs.Length}
 }
 
+func (bs BinarySequence) Swap() Genotype {
+	newSequence := make([]int, bs.Length)
+	copy(newSequence, bs.GenesSequence)
+	first, second := rand.Intn(bs.Length), rand.Intn(bs.Length)
+	newSequence[first], newSequence[second] = newSequence[second], newSequence[first]
+	return BinarySequence{newSequence, bs.Length}
+}
+
 // func (bs *BinarySequence) Crossover(other *BinarySequence) {
 // 	index := rand.Intn(bs.length)
 // 	for i := index; i < bs.length; i++ {
@@ -72,6 +81,16 @@ func GenerateIntSequence(len, maxNum int) (IntSequence, error) {
 	return is, nil
 }
 
+func GenerateIntSequenceWithUniqueValues(len int) (IntSequence, error) { // for now, let it be just simple permutation
+	if len <= 0 {
+		return IntSequence{}, errors.New("length should be greater than 0")
+	}
+
+	is := IntSequence{rand.Perm(len), len, len}
+
+	return is, nil
+}
+
 func (is IntSequence) GetGenesSequence() []int {
 	return is.GenesSequence
 }
@@ -81,5 +100,13 @@ func (is IntSequence) Mutate() Genotype {
 	copy(newSequence, is.GenesSequence)
 	index := rand.Intn(is.Length)
 	newSequence[index] = (newSequence[index] + index) % is.MaxNumber
+	return IntSequence{newSequence, is.Length, is.MaxNumber}
+}
+
+func (is IntSequence) Swap() Genotype {
+	newSequence := make([]int, is.Length)
+	copy(newSequence, is.GenesSequence)
+	first, second := rand.Intn(is.Length), rand.Intn(is.Length)
+	newSequence[first], newSequence[second] = newSequence[second], newSequence[first]
 	return IntSequence{newSequence, is.Length, is.MaxNumber}
 }
