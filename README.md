@@ -4,8 +4,8 @@ It's a repository with some assignments for uni classes (Artificial Intelligence
 ## Requirements
 Go 1.22 or higher
 
-## Build
-To build the project run `go run .` in root directory.
+## Build and run
+To run the project run `go run .` in root directory.
 
 ## Knapsack Problem
 
