@@ -1,7 +1,6 @@
 package knapsack
 
 import (
-	"fmt"
 	"math/rand"
 
 	"github.com/Kaniek99/AIbasics/src/genotype"
@@ -69,16 +68,6 @@ func NewKnapsackProblem(items []*Item, knapsack *Knapsack) *KnapsackProblem {
 }
 
 func (kp *KnapsackProblem) Solve() {
-	valueOfItems, weightOfItems := 0, 0
-	fmt.Print("Items: ")
-
-	for _, item := range kp.Items {
-		fmt.Print(item, " ")
-		valueOfItems += item.Value
-		weightOfItems += item.Weight
-	}
-	fmt.Printf("\nValue: %d, Weight: %d\n", valueOfItems, weightOfItems)
-
 	for kp.StagnationCounter < 100 {
 		childSolution := kp.Knapsack.Solution.Mutate()
 		child := NewKnapsack(kp.Knapsack.MaxWeight, childSolution)
@@ -90,8 +79,5 @@ func (kp *KnapsackProblem) Solve() {
 		} else {
 			kp.StagnationCounter++
 		}
-		// Print the solution and the child for each iteration
-		// fmt.Println("Solution:", kp.Knapsack.Solution.GetGenesSequence())
-		// fmt.Println("   Child:", child.Solution.GetGenesSequence())
 	}
 }
