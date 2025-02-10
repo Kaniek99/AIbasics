@@ -2,15 +2,42 @@ package genotype
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
-	"time"
+	"reflect"
 )
 
 type Genotype interface {
 	GetGenesSequence() []int // same there but I'm not sure if returning a slice of anys is the best soulution
 	Mutate() Genotype
 	Swap() Genotype
-	// Crossover(Genotype) Genotype
+	Crossover(Genotype) (Genotype, error)
+}
+
+type GenotypeCreateLengthError struct {
+	Length int
+}
+
+func (e GenotypeCreateLengthError) Error() string {
+	return fmt.Sprintf("length should be greater than 0, got: %d", e.Length)
+}
+
+type GenotypesCompareLengthError struct {
+	FirstGenotypeLength  int
+	SecondGenotypeLength int
+}
+
+func (e GenotypesCompareLengthError) Error() string {
+	return fmt.Sprintf("genotypes should have the same length, %d != %d", e.FirstGenotypeLength, e.SecondGenotypeLength)
+}
+
+type GenotypesCompareTypeError struct {
+	TypeOfFirstGenotype  reflect.Type
+	TypeOfSecondGenotype reflect.Type
+}
+
+func (e GenotypesCompareTypeError) Error() string {
+	return fmt.Sprintf("genotypes should have the same type, %v != %v", e.TypeOfFirstGenotype, e.TypeOfSecondGenotype)
 }
 
 // is it even needed to have another struct for just int sequence?
@@ -25,10 +52,9 @@ func GenerateBinarySequence(len int) (BinarySequence, error) {
 	}
 
 	bs := BinarySequence{make([]int, len), len}
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	for i := 0; i < len; i++ {
-		bs.GenesSequence[i] = r.Intn(2)
+		bs.GenesSequence[i] = rand.Intn(2)
 	}
 
 	return bs, nil
@@ -54,12 +80,21 @@ func (bs BinarySequence) Swap() Genotype {
 	return BinarySequence{newSequence, bs.Length}
 }
 
-// func (bs *BinarySequence) Crossover(other *BinarySequence) {
-// 	index := rand.Intn(bs.length)
-// 	for i := index; i < bs.length; i++ {
-// 		bs.Sequence[i], other.Sequence[i] = other.Sequence[i], bs.Sequence[i]
-// 	}
-// }
+func (bs BinarySequence) Crossover(other Genotype) (Genotype, error) {
+	if reflect.TypeOf(other) != reflect.TypeOf(bs) {
+		return nil, GenotypesCompareTypeError{TypeOfFirstGenotype: reflect.TypeOf(bs), TypeOfSecondGenotype: reflect.TypeOf(other)}
+	}
+
+	if bs.Length != other.(BinarySequence).Length {
+		return nil, GenotypesCompareLengthError{FirstGenotypeLength: bs.Length, SecondGenotypeLength: other.(BinarySequence).Length}
+	}
+
+	index := rand.Intn(bs.Length)
+	fmt.Println(index)
+	resultSequence := bs.GenesSequence[:index]
+	resultSequence = append(resultSequence, other.(BinarySequence).GenesSequence[index:]...)
+	return BinarySequence{resultSequence, bs.Length}, nil
+}
 
 type IntSequence struct {
 	GenesSequence []int
@@ -69,7 +104,7 @@ type IntSequence struct {
 
 func GenerateIntSequence(len, maxNum int) (IntSequence, error) {
 	if len <= 0 {
-		return IntSequence{}, errors.New("length should be greater than 0")
+		return IntSequence{}, GenotypeCreateLengthError{Length: len}
 	}
 
 	is := IntSequence{make([]int, len), len, maxNum}
@@ -83,7 +118,7 @@ func GenerateIntSequence(len, maxNum int) (IntSequence, error) {
 
 func GenerateIntSequenceWithUniqueValues(len int) (IntSequence, error) { // for now, let it be just simple permutation
 	if len <= 0 {
-		return IntSequence{}, errors.New("length should be greater than 0")
+		return IntSequence{}, GenotypeCreateLengthError{Length: len}
 	}
 
 	is := IntSequence{rand.Perm(len), len, len}
@@ -109,4 +144,20 @@ func (is IntSequence) Swap() Genotype {
 	first, second := rand.Intn(is.Length), rand.Intn(is.Length)
 	newSequence[first], newSequence[second] = newSequence[second], newSequence[first]
 	return IntSequence{newSequence, is.Length, is.MaxNumber}
+}
+
+func (is IntSequence) Crossover(other Genotype) (Genotype, error) {
+	if reflect.TypeOf(other) != reflect.TypeOf(is) {
+		return nil, GenotypesCompareTypeError{TypeOfFirstGenotype: reflect.TypeOf(is), TypeOfSecondGenotype: reflect.TypeOf(other)}
+	}
+
+	if is.Length != other.(BinarySequence).Length {
+		return nil, GenotypesCompareLengthError{FirstGenotypeLength: is.Length, SecondGenotypeLength: other.(IntSequence).Length}
+	}
+
+	index := rand.Intn(is.Length)
+	fmt.Println(index)
+	resultSequence := is.GenesSequence[:index]
+	resultSequence = append(resultSequence, other.(BinarySequence).GenesSequence[index:]...)
+	return BinarySequence{resultSequence, is.Length}, nil
 }
